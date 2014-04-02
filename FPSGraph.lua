@@ -18,12 +18,31 @@ function fpsGraph.createGraph(x, y, width, height, delay, draggable)
 		vals = vals,
 		vmax = 0,
 		cur_time = 0,
-		label = "graph"
+		label = "graph",
+		_dx = 0,
+		_dy = 0,
+		_isDown = false
 	}
 end
 
 function fpsGraph.updateGraph(graph, val, label, dt)
 	graph.cur_time = graph.cur_time + dt
+	local mouseX, mouseY = love.mouse.getPosition()
+
+	if graph.draggable then
+		if (mouseX < graph.width+graph.x and mouseX > graph.x and
+		   mouseY < graph.height+graph.y and mouseY > graph.y) or graph._isDown then
+			if love.mouse.isDown("l") then
+				graph._isDown = true
+				graph.x = mouseX - graph._dx
+				graph.y = mouseY - graph._dy
+			else
+				graph._isDown = false
+				graph._dx = mouseX - graph.x
+				graph._dy = mouseY - graph.y
+			end
+		end
+	end
 
 	while graph.cur_time >= graph.delay do
 		graph.cur_time = graph.cur_time - graph.delay
@@ -66,8 +85,8 @@ function fpsGraph.drawGraphs(graphs)
 		for i=2, len do
 			local a = v.vals[i-1]
 			local b = v.vals[i]
-			love.graphics.line(step*(i-2), v.height*(-a/maxVal+1)+v.y,
-							   step*(i-1), v.height*(-b/maxVal+1)+v.y)
+			love.graphics.line(step*(i-2)+v.x, v.height*(-a/maxVal+1)+v.y,
+							   step*(i-1)+v.x, v.height*(-b/maxVal+1)+v.y)
 		end
 		love.graphics.print(v.label, v.x, v.height+v.y-8)
 	end
