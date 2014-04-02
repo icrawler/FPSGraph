@@ -63,13 +63,13 @@ function fpsGraph.updateGraph(graph, val, label, dt)
 end
 
 function fpsGraph.updateFPS(graph, dt)
-	local fps = 0.75*1/dt + 0.125*graph.vals[#graph.vals] + 0.125*love.timer.getFPS()
+	local fps = 0.75*1/dt + 0.25*love.timer.getFPS()
 
 	fpsGraph.updateGraph(graph, fps, "FPS: " .. math.floor(fps*10)/10, dt)
 end
 
 function fpsGraph.updateMem(graph, dt)
-	local mem = 0.75*collectgarbage("count") + 0.25*graph.vals[#graph.vals]
+	local mem = collectgarbage("count")
 
 	fpsGraph.updateGraph(graph, mem, "Memory (KB): " .. math.floor(mem*10)/10, dt)
 end
