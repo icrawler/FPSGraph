@@ -23,7 +23,7 @@ function fpsGraph.createGraph(x, y, width, height, delay, draggable)
 end
 
 function fpsGraph.updateFPS(graph, dt)
-	local fps = 0.75*1/dt + 0.25*graph.vals[#graph.vals]
+	local fps = 0.75*1/dt + 0.125*graph.vals[#graph.vals] + 0.125*love.timer.getFPS()
 	graph.cur_time = graph.cur_time + dt
 
 	while graph.cur_time >= graph.delay do
@@ -32,9 +32,13 @@ function fpsGraph.updateFPS(graph, dt)
 		table.remove(graph.vals, 1)
 		table.insert(graph.vals, fps)
 
-		if fps > graph.vmax then
-			graph.vmax = fps
+		local max = 0
+		for _, v in ipairs(graph.vals) do
+			if v > max then
+				max = v
+			end
 		end
+		graph.vmax = max
 		graph.label = "FPS: " .. math.floor(fps*10)/10
 	end
 
@@ -51,9 +55,13 @@ function fpsGraph.updateMem(graph, dt)
 		table.remove(graph.vals, 1)
 		table.insert(graph.vals, mem)
 
-		if mem > graph.vmax then
-			graph.vmax = mem
+		local max = 0
+		for _, v in ipairs(graph.vals) do
+			if v > max then
+				max = v
+			end
 		end
+		graph.vmax = max
 		graph.label = "Memory (KB): " .. math.floor(mem*10)/10
 	end
 
