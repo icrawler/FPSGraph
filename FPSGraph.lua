@@ -22,56 +22,44 @@ function fpsGraph.createGraph(x, y, width, height, delay, draggable)
 	}
 end
 
-function fpsGraph.updateFPS(graph, dt)
-	local fps = 0.75*1/dt + 0.125*graph.vals[#graph.vals] + 0.125*love.timer.getFPS()
+function fpsGraph.updateGraph(graph, val, label, dt)
 	graph.cur_time = graph.cur_time + dt
 
 	while graph.cur_time >= graph.delay do
 		graph.cur_time = graph.cur_time - graph.delay
 
 		table.remove(graph.vals, 1)
-		table.insert(graph.vals, fps)
+		table.insert(graph.vals, val)
 
 		local max = 0
-		for _, v in ipairs(graph.vals) do
+		for i=1, #graph.vals do
+			local v = graph.vals[i]
 			if v > max then
 				max = v
 			end
 		end
 		graph.vmax = max
-		graph.label = "FPS: " .. math.floor(fps*10)/10
+		graph.label = label
 	end
+end
 
-	return graph
+function fpsGraph.updateFPS(graph, dt)
+	local fps = 0.75*1/dt + 0.125*graph.vals[#graph.vals] + 0.125*love.timer.getFPS()
+
+	fpsGraph.updateGraph(graph, fps, "FPS: " .. math.floor(fps*10)/10, dt)
 end
 
 function fpsGraph.updateMem(graph, dt)
 	local mem = 0.75*collectgarbage("count") + 0.25*graph.vals[#graph.vals]
-	graph.cur_time = graph.cur_time + dt
 
-	while graph.cur_time >= graph.delay do
-		graph.cur_time = graph.cur_time - graph.delay
-
-		table.remove(graph.vals, 1)
-		table.insert(graph.vals, mem)
-
-		local max = 0
-		for _, v in ipairs(graph.vals) do
-			if v > max then
-				max = v
-			end
-		end
-		graph.vmax = max
-		graph.label = "Memory (KB): " .. math.floor(mem*10)/10
-	end
-
-	return graph
+	fpsGraph.updateGraph(graph, mem, "Memory (KB): " .. math.floor(mem*10)/10, dt)
 end
 
 -- draws all the graphs in your list
 function fpsGraph.drawGraphs(graphs)
 	love.graphics.setFont(fpsGraph.fpsFont)
-	for _, v in ipairs(graphs) do
+	for j=1, #graphs do
+		local v = graphs[j]
 		local maxVal = math.ceil(v.vmax/10)*10+20
 		local len = #v.vals
 		local step = v.width/len
